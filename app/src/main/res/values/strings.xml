@@ -67,6 +67,7 @@
     <string name="notification_hidden_text">New notification (content hidden)</string>
     <string name="notification_hidden_subtext">Unlock the app to read</string>
     <string name="notification_message_hidden">Open app to see message</string>
+    <string name="post_notifications_denied">Notification permission denied — redacted notifications will not show</string>
     <string name="grant_notification_access_hint">Find \"App Locker\" and enable Notification Access</string>
 
     <plurals name="locked_apps_count">

@@ -1,14 +1,19 @@
 package com.applocker.ui
 
+import android.Manifest
 import android.app.AppOpsManager
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.applocker.R
 import com.applocker.data.AppLockDatabase
@@ -28,6 +33,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: PreferencesManager
     private lateinit var db: AppLockDatabase
 
+    private val requestNotificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            if (!granted) {
+                Toast.makeText(this, R.string.post_notifications_denied, Toast.LENGTH_LONG).show()
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -37,9 +49,20 @@ class MainActivity : AppCompatActivity() {
         prefs = PreferencesManager.getInstance(this)
         db = AppLockDatabase.getInstance(this)
 
+        requestPostNotificationsIfNeeded()
         setupButtons()
         observeLockedApps()
         checkForUpdate()
+    }
+
+    private fun requestPostNotificationsIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestNotificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
     override fun onResume() {

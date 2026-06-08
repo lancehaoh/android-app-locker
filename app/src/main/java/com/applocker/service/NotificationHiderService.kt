@@ -12,6 +12,7 @@ import com.applocker.data.AppLockDatabase
 import com.applocker.data.PreferencesManager
 import com.applocker.ui.AppListActivity
 import kotlinx.coroutines.*
+import kotlinx.coroutines.delay
 
 class NotificationHiderService : NotificationListenerService() {
 
@@ -38,6 +39,11 @@ class NotificationHiderService : NotificationListenerService() {
         scope.launch {
             val isLocked = db.lockedAppDao().isLocked(sbn.packageName)
             if (!isLocked) return@launch
+
+            // Small delay so the original notification is fully dismissed before
+            // we post the redacted replacement — prevents Samsung from suppressing
+            // it as a duplicate.
+            delay(300)
 
             withContext(Dispatchers.Main) {
                 redactAndRepost(sbn)
