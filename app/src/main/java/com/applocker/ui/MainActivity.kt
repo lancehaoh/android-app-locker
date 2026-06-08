@@ -14,6 +14,7 @@ import com.applocker.R
 import com.applocker.data.AppLockDatabase
 import com.applocker.update.UpdateChecker
 import com.applocker.update.UpdateDialog
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.applocker.data.LockMethod
 import com.applocker.data.PreferencesManager
 import com.applocker.databinding.ActivityMainBinding
@@ -94,6 +95,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
         }
 
+        binding.btnTimeout.setOnClickListener { showTimeoutPicker() }
+
         binding.btnGrantNotification.setOnClickListener {
             Toast.makeText(this, R.string.grant_notification_access_hint, Toast.LENGTH_LONG).show()
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
@@ -126,6 +129,8 @@ class MainActivity : AppCompatActivity() {
         binding.tvPermissionOverlay.text = getString(
             if (hasOverlay) R.string.permission_granted else R.string.permission_required
         )
+
+        binding.tvTimeoutValue.text = gracePeriodLabel(prefs.gracePeriodMs)
 
         val hasNotificationAccess = hasNotificationListenerPermission()
         binding.btnGrantNotification.alpha = if (hasNotificationAccess) 0.4f else 1f
@@ -181,6 +186,44 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, R.string.grant_usage_stats_hint, Toast.LENGTH_LONG).show()
         startActivity(Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS))
     }
+
+    // ── Timeout picker ────────────────────────────────────────────────────────
+
+    private val timeoutOptions = listOf(
+        0L           to R.string.timeout_immediately,
+        30_000L      to R.string.timeout_30s,
+        60_000L      to R.string.timeout_1m,
+        300_000L     to R.string.timeout_5m,
+        1_800_000L   to R.string.timeout_30m,
+        3_600_000L   to R.string.timeout_1h
+    )
+
+    private fun showTimeoutPicker() {
+        val labels = timeoutOptions.map { getString(it.second) }.toTypedArray()
+        val current = timeoutOptions.indexOfFirst { it.first == prefs.gracePeriodMs }
+            .coerceAtLeast(0)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(getString(R.string.relock_timeout))
+            .setSingleChoiceItems(labels, current) { dialog, which ->
+                val chosen = timeoutOptions[which]
+                prefs.gracePeriodMs = chosen.first
+                binding.tvTimeoutValue.text = getString(chosen.second)
+                Toast.makeText(
+                    this,
+                    getString(R.string.relock_timeout_set, getString(chosen.second)),
+                    Toast.LENGTH_SHORT
+                ).show()
+                dialog.dismiss()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun gracePeriodLabel(ms: Long): String =
+        timeoutOptions.firstOrNull { it.first == ms }
+            ?.let { getString(it.second) }
+            ?: getString(R.string.timeout_immediately)
 
     private fun checkForUpdate() {
         lifecycleScope.launch {

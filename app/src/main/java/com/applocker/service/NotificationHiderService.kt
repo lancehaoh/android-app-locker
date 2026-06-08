@@ -10,6 +10,7 @@ import androidx.core.graphics.drawable.IconCompat
 import com.applocker.R
 import com.applocker.data.AppLockDatabase
 import com.applocker.data.PreferencesManager
+import com.applocker.ui.AppListActivity
 import kotlinx.coroutines.*
 
 class NotificationHiderService : NotificationListenerService() {
@@ -19,7 +20,6 @@ class NotificationHiderService : NotificationListenerService() {
     private lateinit var prefs: PreferencesManager
     private lateinit var nm: NotificationManager
 
-    // Tag we stamp on redacted notifications so we don't re-process them
     private val REDACTED_EXTRA = "com.applocker.redacted"
     private val REDACTED_CHANNEL = "applocker_redacted"
 
@@ -32,9 +32,7 @@ class NotificationHiderService : NotificationListenerService() {
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification) {
-        // Skip notifications we already redacted (avoid infinite loop)
         if (sbn.notification.extras.getBoolean(REDACTED_EXTRA, false)) return
-        // Skip our own app's notifications
         if (sbn.packageName == packageName) return
 
         scope.launch {
@@ -49,14 +47,33 @@ class NotificationHiderService : NotificationListenerService() {
 
     private fun redactAndRepost(sbn: StatusBarNotification) {
         val original = sbn.notification
+        val extras = original.extras
+        val isMessaging = sbn.packageName in AppListActivity.MESSAGING_PACKAGES
 
-        // Build a replacement notification with hidden content
-        val appName = try {
-            val info = packageManager.getApplicationInfo(sbn.packageName, 0)
-            packageManager.getApplicationLabel(info).toString()
-        } catch (e: Exception) {
-            sbn.packageName
+        // For messaging apps: keep the sender name, replace only the message body.
+        // For other apps: replace everything with the app name.
+        val title: String = if (isMessaging) {
+            // Try to get sender name from notification extras (works for most messaging apps)
+            extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()
+                ?: extras.getCharSequence(Notification.EXTRA_CONVERSATION_TITLE)?.toString()
+                ?: run {
+                    val info = runCatching {
+                        packageManager.getApplicationInfo(sbn.packageName, 0)
+                    }.getOrNull()
+                    info?.let { packageManager.getApplicationLabel(it).toString() }
+                        ?: sbn.packageName
+                }
+        } else {
+            runCatching {
+                val info = packageManager.getApplicationInfo(sbn.packageName, 0)
+                packageManager.getApplicationLabel(info).toString()
+            }.getOrDefault(sbn.packageName)
         }
+
+        val body = getString(
+            if (isMessaging) R.string.notification_message_hidden
+            else R.string.notification_hidden_text
+        )
 
         val smallIcon = runCatching {
             IconCompat.createFromIcon(this, original.smallIcon)
@@ -67,11 +84,10 @@ class NotificationHiderService : NotificationListenerService() {
                 if (smallIcon != null) setSmallIcon(smallIcon)
                 else setSmallIcon(android.R.drawable.ic_dialog_info)
             }
-            .setContentTitle(appName)
-            .setContentText(getString(R.string.notification_hidden_text))
-            .setSubText(getString(R.string.notification_hidden_subtext))
-            .setContentIntent(original.contentIntent)       // tapping still opens the (locked) app
-            .setDeleteIntent(original.deleteIntent)         // swipe-to-dismiss still works
+            .setContentTitle(title)
+            .setContentText(body)
+            .setContentIntent(original.contentIntent)
+            .setDeleteIntent(original.deleteIntent)
             .setGroup(original.group)
             .setGroupSummary(original.flags and Notification.FLAG_GROUP_SUMMARY != 0)
             .setAutoCancel(original.flags and Notification.FLAG_AUTO_CANCEL != 0)
@@ -85,7 +101,6 @@ class NotificationHiderService : NotificationListenerService() {
             })
             .build()
 
-        // Cancel the original, post the redacted version under the same ID
         cancelNotification(sbn.key)
         nm.notify(sbn.tag, sbn.id, redacted)
     }

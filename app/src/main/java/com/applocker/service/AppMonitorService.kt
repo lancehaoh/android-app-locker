@@ -34,6 +34,10 @@ class AppMonitorService : Service() {
     private var lastLockedPackage: String? = null
     // Timestamp of last successful unlock per package
     private val unlockedPackages = mutableMapOf<String, Long>()
+    // Previously seen foreground package — lock check only fires on transition
+    private var previousPkg: String? = null
+    // Package currently in the foreground (used to detect active use)
+    private var currentForegroundPkg: String? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -71,20 +75,34 @@ class AppMonitorService : Service() {
                 val currentPkg = getForegroundPackage(usageStatsManager)
 
                 if (currentPkg != null && currentPkg != packageName) {
-                    val isLocked = db.lockedAppDao().isLocked(currentPkg)
-                    if (isLocked) {
-                        val lastUnlock = unlockedPackages[currentPkg] ?: 0L
-                        val withinGrace = (System.currentTimeMillis() - lastUnlock) < gracePeriod
+                    // Only evaluate locking on a foreground TRANSITION (app just switched)
+                    val justSwitchedTo = currentPkg != currentForegroundPkg
 
-                        if (!withinGrace && lastLockedPackage != currentPkg) {
-                            lastLockedPackage = currentPkg
-                            showLockScreen(currentPkg)
-                        }
-                    } else {
-                        // Non-locked app in foreground — clear grace for any previously locked pkg
-                        if (lastLockedPackage != null) {
+                    if (justSwitchedTo) {
+                        val isLocked = db.lockedAppDao().isLocked(currentPkg)
+                        if (isLocked) {
+                            val lastUnlock = unlockedPackages[currentPkg] ?: 0L
+                            val withinGrace = (System.currentTimeMillis() - lastUnlock) < gracePeriod
+                            val cameFromAppLocker = previousPkg == packageName
+
+                            if (!withinGrace && !cameFromAppLocker && lastLockedPackage != currentPkg) {
+                                lastLockedPackage = currentPkg
+                                showLockScreen(currentPkg)
+                            }
+                        } else {
                             lastLockedPackage = null
                         }
+
+                        // Update tracking (ignore the lock screen activity itself)
+                        if (currentPkg != "com.applocker.lock") {
+                            previousPkg = currentForegroundPkg
+                            currentForegroundPkg = currentPkg
+                        }
+                    }
+                } else if (currentPkg == packageName) {
+                    if (currentForegroundPkg != packageName) {
+                        previousPkg = currentForegroundPkg
+                        currentForegroundPkg = packageName
                     }
                 }
 
