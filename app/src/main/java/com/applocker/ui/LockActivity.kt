@@ -248,6 +248,17 @@ class LockActivity : AppCompatActivity() {
 
     private fun onUnlockSuccess() {
         AppMonitorService.notifyUnlocked(this, lockedPackage)
+
+        // If we were launched from a notification tap, open the app explicitly
+        // (there is nothing behind LockActivity to reveal in that case).
+        if (intent.getBooleanExtra(EXTRA_LAUNCH_APP_AFTER_UNLOCK, false)) {
+            val launchIntent = packageManager.getLaunchIntentForPackage(lockedPackage)
+            if (launchIntent != null) {
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(launchIntent)
+            }
+        }
+
         finish()
     }
 
@@ -275,5 +286,8 @@ class LockActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_LOCKED_PACKAGE = "locked_package"
+        /** Set to true when LockActivity is launched via a notification tap.
+         *  After a successful unlock the app is opened explicitly. */
+        const val EXTRA_LAUNCH_APP_AFTER_UNLOCK = "launch_app_after_unlock"
     }
 }

@@ -3,6 +3,11 @@ package com.applocker.service
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.drawable.BitmapDrawable
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.app.NotificationCompat
@@ -11,8 +16,8 @@ import com.applocker.R
 import com.applocker.data.AppLockDatabase
 import com.applocker.data.PreferencesManager
 import com.applocker.ui.AppListActivity
+import com.applocker.ui.LockActivity
 import kotlinx.coroutines.*
-import kotlinx.coroutines.delay
 
 class NotificationHiderService : NotificationListenerService() {
 
@@ -85,15 +90,50 @@ class NotificationHiderService : NotificationListenerService() {
             IconCompat.createFromIcon(this, original.smallIcon)
         }.getOrNull()
 
+        // --- FIX 1: Route taps through LockActivity so auth is required ----------
+        // Instead of original.contentIntent (which opens the app directly), we
+        // launch LockActivity. After successful unlock, LockActivity opens the app.
+        val lockIntent = Intent(this, LockActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            putExtra(LockActivity.EXTRA_LOCKED_PACKAGE, sbn.packageName)
+            putExtra(LockActivity.EXTRA_LAUNCH_APP_AFTER_UNLOCK, true)
+        }
+        val lockPendingIntent = PendingIntent.getActivity(
+            this,
+            sbn.id,
+            lockIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        // --- FIX 2: Show the messaging app's own icon as the large icon ----------
+        // smallIcon must belong to the posting app (App Locker), but largeIcon can
+        // be any bitmap — so we use the locked app's launcher icon there.
+        val appIconBitmap: Bitmap? = runCatching {
+            val drawable = packageManager.getApplicationIcon(sbn.packageName)
+            when (drawable) {
+                is BitmapDrawable -> drawable.bitmap
+                else -> Bitmap.createBitmap(
+                    drawable.intrinsicWidth.coerceAtLeast(1),
+                    drawable.intrinsicHeight.coerceAtLeast(1),
+                    Bitmap.Config.ARGB_8888
+                ).also { bmp ->
+                    val canvas = Canvas(bmp)
+                    drawable.setBounds(0, 0, canvas.width, canvas.height)
+                    drawable.draw(canvas)
+                }
+            }
+        }.getOrNull()
+
         val redacted = NotificationCompat.Builder(this, REDACTED_CHANNEL)
             .apply {
                 if (smallIcon != null) setSmallIcon(smallIcon)
-                else setSmallIcon(android.R.drawable.ic_dialog_info)
+                else setSmallIcon(R.mipmap.ic_launcher)
             }
             .setContentTitle(title)
             .setContentText(body)
-            .setContentIntent(original.contentIntent)
+            .setContentIntent(lockPendingIntent)          // ← auth required on tap
             .setDeleteIntent(original.deleteIntent)
+            .apply { if (appIconBitmap != null) setLargeIcon(appIconBitmap) }  // ← app logo
             .setGroup(original.group)
             .setGroupSummary(original.flags and Notification.FLAG_GROUP_SUMMARY != 0)
             .setAutoCancel(original.flags and Notification.FLAG_AUTO_CANCEL != 0)
