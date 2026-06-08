@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="md_theme_primary">#1B6EF3</color>
+    <color name="md_theme_on_primary">#FFFFFF</color>
+    <color name="md_theme_primary_container">#D8E2FF</color>
+    <color name="md_theme_surface">#FDFBFF</color>
+    <color name="pin_dot_empty">#CCCCCC</color>
+    <color name="pin_dot_filled">#1B6EF3</color>
+</resources>

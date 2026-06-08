@@ -1,0 +1,30 @@
+# Credentials — NEVER commit these
+keystore.properties
+*.keystore
+*.jks
+
+# Gradle
+.gradle/
+build/
+app/build/
+**/build/
+
+# Android Studio / IDE
+.idea/
+*.iml
+local.properties
+.DS_Store
+.claude/
+
+# Kotlin error logs
+.kotlin/
+
+# Release outputs (APKs, mappings)
+app/release/
+*.apk
+*.aab
+
+# Generated
+captures/
+.externalNativeBuild/
+.cxx/

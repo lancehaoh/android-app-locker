@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">App Locker</string>
+    <string name="back">Back</string>
+    <string name="cancel">Cancel</string>
+    <string name="select_apps_to_lock">Select Apps to Lock</string>
+    <string name="setup_lock">Setup Lock</string>
+    <string name="app_lock_enabled">App Lock Enabled</string>
+    <string name="permissions">Permissions</string>
+    <string name="usage_stats_permission">Usage Access</string>
+    <string name="overlay_permission">Display Over Other Apps</string>
+    <string name="accessibility_permission">Accessibility Service</string>
+    <string name="accessibility_hint">Recommended for Samsung One UI</string>
+    <string name="permission_required">Required</string>
+    <string name="permission_granted">Granted ✓</string>
+    <string name="grant">Grant</string>
+    <string name="search_apps">Search apps…</string>
+    <string name="enter_pin">Enter PIN</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="use_biometric">Use Biometric</string>
+    <string name="unlock">Unlock</string>
+    <string name="unlock_app">Unlock App</string>
+    <string name="wrong_credentials">Incorrect — try again</string>
+    <string name="biometric_not_available">Biometric not available</string>
+    <string name="biometric_failed">Biometric not recognized</string>
+    <string name="biometric_error">Error: %1$s</string>
+    <string name="new_pin">New PIN (4–8 digits)</string>
+    <string name="confirm_pin">Confirm PIN</string>
+    <string name="save_pin">Save PIN</string>
+    <string name="pin_too_short">PIN must be at least 4 digits</string>
+    <string name="pin_mismatch">PINs do not match</string>
+    <string name="pin_saved">PIN saved</string>
+    <string name="new_password">New Password (6+ chars)</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="save_password">Save Password</string>
+    <string name="password_too_short">Password must be at least 6 characters</string>
+    <string name="password_mismatch">Passwords do not match</string>
+    <string name="password_saved">Password saved</string>
+    <string name="biometric_description">Use your fingerprint or face to unlock apps.\n\nYou will be prompted each time a locked app opens.</string>
+    <string name="enable_biometric">Enable Biometric</string>
+    <string name="biometric_saved">Biometric unlock enabled</string>
+    <string name="biometric_fallback">Biometric Fallback</string>
+    <string name="biometric_fallback_hint">Also allow biometric when using PIN/Password</string>
+    <string name="current_lock_method">Lock method: %1$s</string>
+    <string name="lock_method_pin">PIN</string>
+    <string name="lock_method_password">Password</string>
+    <string name="lock_method_biometric">Biometric (Face / Fingerprint)</string>
+    <string name="setup_lock_first">Please set up a lock method first</string>
+    <string name="grant_usage_stats_hint">Find \"App Locker\" and enable Usage Access</string>
+    <string name="notification_title">App Locker Active</string>
+    <string name="notification_text">Monitoring locked apps</string>
+    <string name="accessibility_service_label">App Locker Monitor</string>
+
+    <string name="notification_listener_label">App Locker Notification Filter</string>
+    <string name="notification_listener_permission">Notification Access</string>
+    <string name="notification_listener_hint">Hides message content from locked apps</string>
+    <string name="notification_hidden_text">New notification (content hidden)</string>
+    <string name="notification_hidden_subtext">Unlock the app to read</string>
+    <string name="grant_notification_access_hint">Find \"App Locker\" and enable Notification Access</string>
+
+    <plurals name="locked_apps_count">
+        <item quantity="one">%d app locked</item>
+        <item quantity="other">%d apps locked</item>
+    </plurals>
+</resources>

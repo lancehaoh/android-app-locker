@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:background="?attr/colorSurface"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/iv_app_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_marginTop="48dp"
+        android:contentDescription="Locked app icon" />
+
+    <TextView
+        android:id="@+id/tv_app_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:textAppearance="?attr/textAppearanceTitleLarge" />
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_lock"
+        android:tint="?attr/colorPrimary"
+        android:contentDescription="Lock icon" />
+
+    <TextView
+        android:id="@+id/tv_prompt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Enter PIN"
+        android:textAppearance="?attr/textAppearanceBodyLarge" />
+
+    <!-- PIN dots -->
+    <LinearLayout
+        android:id="@+id/pin_dots"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <View android:id="@+id/dot1" style="@style/PinDot" />
+        <View android:id="@+id/dot2" style="@style/PinDot" />
+        <View android:id="@+id/dot3" style="@style/PinDot" />
+        <View android:id="@+id/dot4" style="@style/PinDot" />
+        <View android:id="@+id/dot5" style="@style/PinDot" />
+        <View android:id="@+id/dot6" style="@style/PinDot" />
+        <View android:id="@+id/dot7" style="@style/PinDot" />
+        <View android:id="@+id/dot8" style="@style/PinDot" />
+    </LinearLayout>
+
+    <!-- PIN numpad -->
+    <LinearLayout
+        android:id="@+id/pin_pad"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <!-- Row 1: 1 2 3 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/btn1" style="@style/NumpadButton" android:text="1" />
+            <Button android:id="@+id/btn2" style="@style/NumpadButton" android:text="2" />
+            <Button android:id="@+id/btn3" style="@style/NumpadButton" android:text="3" />
+        </LinearLayout>
+
+        <!-- Row 2: 4 5 6 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/btn4" style="@style/NumpadButton" android:text="4" />
+            <Button android:id="@+id/btn5" style="@style/NumpadButton" android:text="5" />
+            <Button android:id="@+id/btn6" style="@style/NumpadButton" android:text="6" />
+        </LinearLayout>
+
+        <!-- Row 3: 7 8 9 -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button android:id="@+id/btn7" style="@style/NumpadButton" android:text="7" />
+            <Button android:id="@+id/btn8" style="@style/NumpadButton" android:text="8" />
+            <Button android:id="@+id/btn9" style="@style/NumpadButton" android:text="9" />
+        </LinearLayout>
+
+        <!-- Row 4: backspace 0 OK -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_backspace"
+                style="@style/NumpadButton"
+                android:text="⌫" />
+
+            <Button android:id="@+id/btn0" style="@style/NumpadButton" android:text="0" />
+
+            <Button
+                android:id="@+id/btn_ok_pin"
+                style="@style/NumpadButton"
+                android:text="OK"
+                android:singleLine="true"
+                android:letterSpacing="0"
+                android:backgroundTint="?attr/colorPrimary"
+                android:textColor="?attr/colorOnPrimary" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Password field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+        app:endIconMode="password_toggle"
+        android:hint="@string/enter_password">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword"
+            android:imeOptions="actionDone" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Biometric button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_biometric"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/use_biometric"
+        app:icon="@drawable/ic_fingerprint"
+        style="@style/Widget.Material3.Button.OutlinedButton" />
+
+</LinearLayout>
