@@ -136,7 +136,7 @@ class NotificationHiderService : NotificationListenerService() {
             .apply { if (appIconBitmap != null) setLargeIcon(appIconBitmap) }  // ← app logo
             .setGroup(original.group)
             .setGroupSummary(original.flags and Notification.FLAG_GROUP_SUMMARY != 0)
-            .setAutoCancel(original.flags and Notification.FLAG_AUTO_CANCEL != 0)
+            .setAutoCancel(true)   // ← always dismiss the notification once tapped
             .setOngoing(original.flags and Notification.FLAG_ONGOING_EVENT != 0)
             .setWhen(original.`when`)
             .setShowWhen(true)
