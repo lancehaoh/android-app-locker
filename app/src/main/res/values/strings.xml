@@ -16,6 +16,7 @@
     <string name="select_apps_to_lock">Select Apps to Lock</string>
     <string name="setup_lock">Setup Lock</string>
     <string name="app_lock_enabled">App Lock Enabled</string>
+    <string name="app_lock_disabled">App Lock Disabled</string>
     <string name="permissions">Permissions</string>
     <string name="usage_stats_permission">Usage Access</string>
     <string name="overlay_permission">Display Over Other Apps</string>

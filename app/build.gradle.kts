@@ -20,8 +20,8 @@ android {
         applicationId = "com.applocker"
         minSdk = 29
         targetSdk = 36
-        versionCode = 3        // Increment this with every release (1, 2, 3 …)
-        versionName = "1.0.2"  // Human-readable version shown in update dialog
+        versionCode = 4        // Increment this with every release (1, 2, 3 …)
+        versionName = "1.0.3"  // Human-readable version shown in update dialog
     }
 
     signingConfigs {

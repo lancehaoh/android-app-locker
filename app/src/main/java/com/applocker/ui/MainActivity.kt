@@ -173,6 +173,7 @@ class MainActivity : AppCompatActivity() {
     private fun refreshServiceToggle() {
         binding.switchService.setOnCheckedChangeListener(null)
         binding.switchService.isChecked = prefs.serviceEnabled
+        updateServiceStatusText(prefs.serviceEnabled)
         binding.switchService.setOnCheckedChangeListener { _, checked ->
             if (checked) {
                 if (!hasUsageStatsPermission()) {
@@ -192,7 +193,14 @@ class MainActivity : AppCompatActivity() {
                 prefs.serviceEnabled = false
                 AppMonitorService.stop(this)
             }
+            updateServiceStatusText(prefs.serviceEnabled)
         }
+    }
+
+    private fun updateServiceStatusText(enabled: Boolean) {
+        binding.tvServiceStatus.setText(
+            if (enabled) R.string.app_lock_enabled else R.string.app_lock_disabled
+        )
     }
 
     private fun hasUsageStatsPermission(): Boolean {
